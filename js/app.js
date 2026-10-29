@@ -1,6 +1,6 @@
 /**
  * KotobaPass - Main Application Controller
- * Handles UI interactions, reactive rendering, clipboard actions, presets and PWA registration.
+ * Handles UI interactions, reactive rendering, clipboard actions, presets, color highlighting, and PWA registration.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,11 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let generatedPasswordValue = "";
   let lastCliOutputs = { windowsCmd: "", linuxCmd: "", rawWindowsCmd: "", rawLinuxCmd: "" };
 
-  // Check URL parameters for configuration overrides
+  // Check URL parameters for configuration overrides (Base on DEFAULT_CONFIG to avoid stale local overrides)
   const urlConfig = StorageManager.parseConfigFromUrl();
   if (urlConfig) {
-    currentConfig = { ...currentConfig, ...urlConfig };
+    currentConfig = { ...DEFAULT_CONFIG, ...urlConfig };
     StorageManager.saveConfig(currentConfig);
+    // Remove query from URL cleanly to avoid re-triggering on subsequent reloads
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   }
 
   // --- DOM Elements ---
@@ -27,6 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const inputPhrase = document.getElementById("input-phrase");
   const inputService = document.getElementById("input-service");
+  const phraseSpaceHint = document.getElementById("phrase-space-hint");
+  const serviceCaseHint = document.getElementById("service-case-hint");
+
   const btnTogglePhraseMask = document.getElementById("btn-toggle-phrase-mask");
   const phraseMaskIcon = document.getElementById("phrase-mask-icon");
   const phraseMaskText = document.getElementById("phrase-mask-text");
@@ -54,8 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputSuffix = document.getElementById("input-suffix");
   const inputSeparator = document.getElementById("input-separator");
   const presetsContainer = document.getElementById("presets-container");
-  const btnSaveAsPreset = document.getElementById("btn-save-as-preset");
   const btnShareConfig = document.getElementById("btn-share-config");
+
+  // Inline Preset Creator
+  const btnSaveAsPreset = document.getElementById("btn-save-as-preset");
+  const inlinePresetCreator = document.getElementById("inline-preset-creator");
+  const inputNewPresetName = document.getElementById("input-new-preset-name");
+  const btnConfirmSavePreset = document.getElementById("btn-confirm-save-preset");
+  const btnCancelSavePreset = document.getElementById("btn-cancel-save-preset");
 
   // CLI Elements
   const tabBtnWin = document.getElementById("tab-btn-win");
@@ -63,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkMaskCliPhrase = document.getElementById("check-mask-cli-phrase");
   const cliCommandCode = document.getElementById("cli-command-code");
   const btnCopyCli = document.getElementById("btn-copy-cli");
+  const btnCopyCliText = document.getElementById("btn-copy-cli-text");
 
   // Toast
   const toast = document.getElementById("toast");
@@ -83,6 +97,26 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.classList.add("hidden");
       }, 200);
     }, duration);
+  }
+
+  // --- Password Character Color Highlighter ---
+  function renderHighlightedPassword(password) {
+    let html = "";
+    for (let i = 0; i < password.length; i++) {
+      const c = password[i];
+      let cls = "char-symbol";
+      if (/[A-Z]/.test(c)) {
+        cls = "char-upper";
+      } else if (/[a-z]/.test(c)) {
+        cls = "char-lower";
+      } else if (/[0-9]/.test(c)) {
+        cls = "char-number";
+      }
+      // Escape HTML entities if any
+      const escapedChar = c === "<" ? "&lt;" : (c === ">" ? "&gt;" : (c === "&" ? "&amp;" : c));
+      html += `<span class="${cls}">${escapedChar}</span>`;
+    }
+    return html;
   }
 
   // --- Initialize UI with currentConfig ---
@@ -155,11 +189,9 @@ document.addEventListener("DOMContentLoaded", () => {
         delBtn.title = "プリセットを削除";
         delBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (confirm(`プリセット「${preset.name}」を削除しますか？`)) {
-            StorageManager.deleteCustomPreset(preset.id);
-            renderPresets();
-            showToast("プリセットを削除しました");
-          }
+          StorageManager.deleteCustomPreset(preset.id);
+          renderPresets();
+          showToast(`プリセット「${preset.name}」を削除しました`, 2000);
         });
         btnWrapper.appendChild(delBtn);
       }
@@ -208,6 +240,20 @@ document.addEventListener("DOMContentLoaded", () => {
       btnClearService.classList.add("hidden");
     }
 
+    // UX Assist: Detect leading/trailing whitespace in phrase
+    if (rawPhrase.length > 0 && rawPhrase !== phrase) {
+      phraseSpaceHint.classList.remove("hidden");
+    } else {
+      phraseSpaceHint.classList.add("hidden");
+    }
+
+    // UX Assist: Detect uppercase in service name
+    if (rawService.length > 0 && /[A-Z]/.test(rawService)) {
+      serviceCaseHint.classList.remove("hidden");
+    } else {
+      serviceCaseHint.classList.add("hidden");
+    }
+
     currentConfig.service = service;
     currentConfig.length = parseInt(inputLength.value, 10);
     currentConfig.plusChar = inputPlusChar.value || "!";
@@ -225,12 +271,12 @@ document.addEventListener("DOMContentLoaded", () => {
       generatedPasswordValue = await generatePassword(phrase, currentConfig);
       btnCopyPassword.disabled = false;
 
-      // Mask or show password
+      // Mask or show password (with color highlighting)
       if (isPasswordMasked) {
         passwordDisplay.textContent = "•".repeat(generatedPasswordValue.length);
         passwordDisplay.className = "font-mono-code text-xl sm:text-2xl font-bold tracking-widest text-brand-600 dark:text-brand-300 select-none";
       } else {
-        passwordDisplay.textContent = generatedPasswordValue;
+        passwordDisplay.innerHTML = renderHighlightedPassword(generatedPasswordValue);
         passwordDisplay.className = "font-mono-code text-xl sm:text-2xl font-bold tracking-wider text-slate-900 dark:text-white select-all";
       }
 
@@ -241,6 +287,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // CLI Commands
     const maskCli = checkMaskCliPhrase.checked;
     lastCliOutputs = buildCliCommands(phrase, currentConfig, maskCli);
+
+    // Update CLI copy button label depending on mask state
+    if (btnCopyCliText) {
+      btnCopyCliText.textContent = maskCli ? "実フレーズ入りでコピー" : "コマンドをコピー";
+    }
 
     updateCliDisplay();
   }
@@ -366,7 +417,6 @@ document.addEventListener("DOMContentLoaded", () => {
       await navigator.clipboard.writeText(generatedPasswordValue);
       showToast("パスワードをコピーしました！");
     } catch (err) {
-      // Fallback
       const ta = document.createElement("textarea");
       ta.value = generatedPasswordValue;
       document.body.appendChild(ta);
@@ -377,17 +427,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Save as Custom Preset
-  btnSaveAsPreset.addEventListener("click", () => {
-    const name = prompt("新しいプリセット名を入力してください（例: 厳格サイト用）:");
-    if (name && name.trim()) {
+  // Inline Preset Creator Events
+  if (btnSaveAsPreset && inlinePresetCreator) {
+    btnSaveAsPreset.addEventListener("click", () => {
+      inlinePresetCreator.classList.remove("hidden");
+      inputNewPresetName.value = "";
+      inputNewPresetName.focus();
+    });
+
+    btnCancelSavePreset.addEventListener("click", () => {
+      inlinePresetCreator.classList.add("hidden");
+    });
+
+    btnConfirmSavePreset.addEventListener("click", () => {
+      const name = inputNewPresetName.value.trim();
+      if (!name) {
+        inputNewPresetName.focus();
+        return;
+      }
       const newPreset = StorageManager.saveCustomPreset(name, currentConfig);
       if (newPreset) {
+        inlinePresetCreator.classList.add("hidden");
         renderPresets();
-        showToast(`プリセット「${name.trim()}」を保存しました`);
+        showToast(`プリセット「${name}」を保存しました`);
       }
-    }
-  });
+    });
+
+    inputNewPresetName.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        btnConfirmSavePreset.click();
+      } else if (e.key === "Escape") {
+        btnCancelSavePreset.click();
+      }
+    });
+  }
 
   // Share Config via URL Query
   btnShareConfig.addEventListener("click", async () => {
@@ -401,18 +474,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // CLI Tabs
+  // CLI Tabs (Keep dark: classes on tab switch)
   tabBtnWin.addEventListener("click", () => {
     activeTab = "win";
-    tabBtnWin.className = "px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-400 focus:outline-none";
-    tabBtnLinux.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-300 focus:outline-none";
+    tabBtnWin.className = "px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 focus:outline-none";
+    tabBtnLinux.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-300 focus:outline-none";
     updateCliDisplay();
   });
 
   tabBtnLinux.addEventListener("click", () => {
     activeTab = "linux";
-    tabBtnLinux.className = "px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-400 focus:outline-none";
-    tabBtnWin.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-300 focus:outline-none";
+    tabBtnLinux.className = "px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 focus:outline-none";
+    tabBtnWin.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-300 focus:outline-none";
     updateCliDisplay();
   });
 
@@ -423,11 +496,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Copy CLI Command
   btnCopyCli.addEventListener("click", async () => {
-    // If phrase is masked on screen, ask or copy actual command
     const rawCmd = activeTab === "win" ? lastCliOutputs.rawWindowsCmd : lastCliOutputs.rawLinuxCmd;
     const displayCmd = activeTab === "win" ? lastCliOutputs.windowsCmd : lastCliOutputs.linuxCmd;
     
-    // If the user has entered a phrase, copy the command with their phrase
+    // If the user has entered a phrase, copy with phrase
     const cmdToCopy = inputPhrase.value.trim() ? rawCmd : displayCmd;
 
     try {
@@ -459,4 +531,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-

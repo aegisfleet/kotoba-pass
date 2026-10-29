@@ -41,10 +41,10 @@ const DEFAULT_PRESETS = [
   },
   {
     id: "preset-strict-symbol",
-    name: "記号確実 (24文字・末尾!)",
+    name: "記号確実 (計24文字・末尾!)",
     isDefault: true,
     config: {
-      length: 24,
+      length: 23,
       symbolMode: "custom",
       plusChar: "!",
       slashChar: "@",
@@ -180,20 +180,16 @@ class StorageManager {
 
   /**
    * 設定をURLクエリパラメータにシリアライズ
+   * ※別端末へ共有した際に確実に完全同一の設定を復元できるよう、主要パラメータを明示的に出力
    */
   static configToQueryString(config) {
     const params = new URLSearchParams();
-    if (config.length && config.length !== DEFAULT_CONFIG.length) {
-      params.set("len", config.length);
-    }
-    if (config.symbolMode && config.symbolMode !== DEFAULT_CONFIG.symbolMode) {
-      params.set("sym", config.symbolMode);
-    }
-    if (config.plusChar && config.plusChar !== "!") {
-      params.set("p", config.plusChar);
-    }
-    if (config.slashChar && config.slashChar !== "@") {
-      params.set("s", config.slashChar);
+    params.set("len", config.length || DEFAULT_CONFIG.length);
+    params.set("sym", config.symbolMode || DEFAULT_CONFIG.symbolMode);
+    
+    if (config.symbolMode === "custom") {
+      params.set("p", config.plusChar || "!");
+      params.set("s", config.slashChar || "@");
     }
     if (config.suffix) {
       params.set("suf", config.suffix);
@@ -201,8 +197,7 @@ class StorageManager {
     if (config.separator && config.separator !== ":") {
       params.set("sep", config.separator);
     }
-    const qs = params.toString();
-    return qs ? `?${qs}` : "";
+    return `?${params.toString()}`;
   }
 
   /**

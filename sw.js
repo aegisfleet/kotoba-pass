@@ -2,17 +2,20 @@
  * KotobaPass - Service Worker for 100% Offline PWA Operation
  */
 
-const CACHE_NAME = "kotobapass-v1";
+const CACHE_NAME = "kotobapass-v2";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
   "./css/style.css",
+  "./js/tailwind.js",
   "./js/generator.js",
   "./js/cli-builder.js",
   "./js/storage.js",
   "./js/app.js",
   "./manifest.json",
   "./icons/icon.svg",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
   "./images/ogp.png",
   "./images/ogp.svg"
 ];

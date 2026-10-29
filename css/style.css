@@ -5,23 +5,32 @@
 :root {
   --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
-  --color-surface: #ffffff;
-  --color-background: #0f172a;
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars (Light Mode) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Custom scrollbars (Dark Mode) */
+html.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
 
@@ -32,18 +41,34 @@
   letter-spacing: 0.05em;
 }
 
-/* Password character highlight effect */
+/* Password character highlight effect (Light / Dark Adaptive) */
 .char-upper {
-  color: #60a5fa; /* blue */
+  color: #2563eb; /* blue-600 */
 }
+html.dark .char-upper {
+  color: #60a5fa; /* blue-400 */
+}
+
 .char-lower {
-  color: #38bdf8; /* sky */
+  color: #0284c7; /* sky-600 */
 }
+html.dark .char-lower {
+  color: #38bdf8; /* sky-400 */
+}
+
 .char-number {
-  color: #34d399; /* emerald */
+  color: #059669; /* emerald-600 */
 }
+html.dark .char-number {
+  color: #34d399; /* emerald-400 */
+}
+
 .char-symbol {
-  color: #f43f5e; /* rose */
+  color: #e11d48; /* rose-600 */
+  font-weight: 700;
+}
+html.dark .char-symbol {
+  color: #f43f5e; /* rose-500 */
 }
 
 /* Toast Notification Animation */
@@ -75,14 +100,4 @@
 
 .toast-exit {
   animation: toastOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Pulse badge glow */
-.badge-active {
-  box-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
-}
-
-/* Smooth transitions */
-.transition-all-fast {
-  transition: all 0.15s ease-in-out;
 }

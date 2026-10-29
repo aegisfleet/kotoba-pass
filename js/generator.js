@@ -16,19 +16,31 @@
  * @param {string} [config.suffix] - 末尾に付加する接尾辞 (任意)
  * @returns {Promise<string>} 生成されたパスワード
  */
+const SAFE_SYMBOLS = "!@#$%^&*_+=~?";
+
+function sanitizeSymbol(char, fallback = "!") {
+  if (!char || typeof char !== "string") return fallback;
+  const c = char.charAt(0);
+  return SAFE_SYMBOLS.includes(c) ? c : fallback;
+}
+
 async function generatePassword(phrase, config = {}) {
   if (!phrase) return "";
+
+  // macOS等のNFD濁点分解を安全にNFCへ正規化し、前後の不要な空白をトリム
+  const normalizedPhrase = phrase.normalize ? phrase.normalize("NFC").trim() : phrase.trim();
+  if (!normalizedPhrase) return "";
 
   const separator = config.separator !== undefined ? config.separator : ":";
   const service = (config.service || "").trim();
   const length = parseInt(config.length, 10) || 24;
   const symbolMode = config.symbolMode || "standard";
-  const plusChar = config.plusChar !== undefined ? config.plusChar : "!";
-  const slashChar = config.slashChar !== undefined ? config.slashChar : "@";
+  const plusChar = sanitizeSymbol(config.plusChar, "!");
+  const slashChar = sanitizeSymbol(config.slashChar, "@");
   const suffix = config.suffix || "";
 
   // サービス名がある場合は結合
-  const fullText = service ? `${phrase}${separator}${service}` : phrase;
+  const fullText = service ? `${normalizedPhrase}${separator}${service}` : normalizedPhrase;
 
   // UTF-8バイト列へ変換
   const encoder = new TextEncoder();

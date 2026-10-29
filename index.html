@@ -10,7 +10,8 @@
   <meta property="og:title" content="コトバパス (KotobaPass) - 思い出せないをなくしたい。日本語から作る忘れないパスワード">
   <meta property="og:description" content="日本語のフレーズから決定論的にパスワードを生成。サーバー通信ゼロ・保存ゼロ・OS標準のCLIコマンドで永久に再現可能なステートレスパスワード生成ツール。">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="images/ogp.png">
+  <meta property="og:url" content="https://aegisfleet.github.io/kotoba-pass/">
+  <meta property="og:image" content="https://aegisfleet.github.io/kotoba-pass/images/ogp.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
@@ -18,7 +19,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="コトバパス (KotobaPass) - 思い出せないをなくしたい。">
   <meta name="twitter:description" content="日本語の秘密のフレーズから強力なパスワードを導出。サーバー保存ゼロ・CLIで永久再現。">
-  <meta name="twitter:image" content="images/ogp.png">
+  <meta name="twitter:image" content="https://aegisfleet.github.io/kotoba-pass/images/ogp.png">
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
@@ -37,8 +38,8 @@
     })();
   </script>
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS (Local Bundle for 100% Offline Support) -->
+  <script src="js/tailwind.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -228,6 +229,12 @@
           <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
             ※ あなただけが知っている長い日常の言葉・好きな歌詞・思い出の一文など。サーバーには一切送信されません。
           </p>
+          <div id="phrase-space-hint" class="hidden mt-1.5 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>※ 前後の空白を除外（トリム）してパスワードを生成しています</span>
+          </div>
         </div>
 
         <!-- Service / Salt Input (Optional) -->
@@ -259,6 +266,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
+          </div>
+          <div id="service-case-hint" class="hidden mt-1.5 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>※ 大文字が含まれています。思い出せるよう小文字統一を推奨します</span>
           </div>
           <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
             同じフレーズでもサービスごとに独立したパスワードが作られます（内部で <code class="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-slate-700 dark:text-slate-300">フレーズ:サービス名</code> として結合）。
@@ -364,7 +377,7 @@
             id="input-length" 
             type="range" 
             min="8" 
-            max="40" 
+            max="36" 
             value="24" 
             class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
           >
@@ -374,7 +387,7 @@
             <span>20</span>
             <span>24</span>
             <span>32</span>
-            <span>40</span>
+            <span>36</span>
           </div>
         </div>
 
@@ -441,14 +454,45 @@
         </div>
       </div>
 
-      <!-- Save As Custom Preset Modal Trigger -->
-      <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-        <button id="btn-save-as-preset" type="button" class="text-xs text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center space-x-1.5 transition-all focus:outline-none">
-          <svg class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>現在の設定を新しいプリセットとして保存</span>
-        </button>
+      <!-- Save As Custom Preset Form (Inline UI instead of prompt) -->
+      <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div id="inline-preset-creator" class="hidden mb-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-brand-500/30 space-y-2.5">
+          <div class="text-xs font-semibold text-slate-800 dark:text-slate-200">新しいプリセットとして保存</div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input 
+              id="input-new-preset-name" 
+              type="text" 
+              maxlength="30" 
+              placeholder="プリセット名（例: 厳格サイト用）" 
+              class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+            <div class="flex items-center space-x-2 shrink-0">
+              <button 
+                id="btn-confirm-save-preset" 
+                type="button" 
+                class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium rounded-lg transition-colors focus:outline-none"
+              >
+                保存する
+              </button>
+              <button 
+                id="btn-cancel-save-preset" 
+                type="button" 
+                class="px-3 py-1.5 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs rounded-lg transition-colors focus:outline-none"
+              >
+                キャンセル
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button id="btn-save-as-preset" type="button" class="text-xs text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center space-x-1.5 transition-all focus:outline-none">
+            <svg class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>現在の設定を新しいプリセットとして保存</span>
+          </button>
+        </div>
       </div>
     </div>
 

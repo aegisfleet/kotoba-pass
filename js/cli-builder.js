@@ -25,6 +25,17 @@ function escapeForBash(str) {
 }
 
 /**
+ * 安全なカスタム置換記号（BashおよびPowerShellで誤作動しない安全記号）
+ */
+const SAFE_SYMBOLS = "!@#$%^&*_+=~?";
+
+function sanitizeSymbol(char, fallback = "!") {
+  if (!char || typeof char !== "string") return fallback;
+  const c = char.charAt(0);
+  return SAFE_SYMBOLS.includes(c) ? c : fallback;
+}
+
+/**
  * 秘密のフレーズと設定からCLI検証・復元コマンドを生成する
  * @param {string} phrase - 秘密のフレーズ
  * @param {Object} config - 生成設定
@@ -36,13 +47,14 @@ function buildCliCommands(phrase, config = {}, maskPhrase = false) {
   const service = (config.service || "").trim();
   const length = parseInt(config.length, 10) || 24;
   const symbolMode = config.symbolMode || "standard";
-  const plusChar = config.plusChar !== undefined ? config.plusChar : "!";
-  const slashChar = config.slashChar !== undefined ? config.slashChar : "@";
+  const plusChar = sanitizeSymbol(config.plusChar, "!");
+  const slashChar = sanitizeSymbol(config.slashChar, "@");
   const suffix = config.suffix || "";
 
-  // 表示用フレーズと、実際の実行用フレーズ
-  const actualPhrase = phrase || "日本語の秘密のフレーズ";
-  const displayPhrase = (maskPhrase || !phrase) ? "日本語の秘密のフレーズ" : phrase;
+  // 表示用フレーズと、実際の実行用フレーズ (NFC正規化 & トリム)
+  const normPhrase = phrase ? (phrase.normalize ? phrase.normalize("NFC").trim() : phrase.trim()) : "";
+  const actualPhrase = normPhrase || "日本語の秘密のフレーズ";
+  const displayPhrase = (maskPhrase || !normPhrase) ? "日本語の秘密のフレーズ" : normPhrase;
 
   const actualFullPhrase = service ? `${actualPhrase}${separator}${service}` : actualPhrase;
   const displayFullPhrase = service ? `${displayPhrase}${separator}${service}` : displayPhrase;
@@ -69,7 +81,8 @@ function buildCliCommands(phrase, config = {}, maskPhrase = false) {
   } else if (symbolMode === "custom") {
     const p = escapeForBash(plusChar);
     const s = escapeForBash(slashChar);
-    linuxTransform = ` | tr '+/' '${p}${s}' | tr -d '='`;
+    // ダブルクォートで囲むことで escapeForBash のエスケープ ($ や " など) を正しく機能させる
+    linuxTransform = ` | tr "+/" "${p}${s}" | tr -d '='`;
   }
 
   let linuxSuffix = "; echo";

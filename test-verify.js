@@ -25,9 +25,19 @@ async function runTests() {
       config: { service: "github", length: 20, symbolMode: "custom", plusChar: "!", slashChar: "@" }
     },
     {
+      name: "カスタム置換でドル記号を含むケース (吾輩は猫である:amazon は + と / の両方を含む)",
+      phrase: "吾輩は猫である",
+      config: { service: "amazon", length: 24, symbolMode: "custom", plusChar: "$", slashChar: "#" }
+    },
+    {
       name: "サフィックス付き (20文字 + '#!')",
       phrase: "桜の花びらが舞い散る春の日",
       config: { service: "banking", length: 20, symbolMode: "custom", plusChar: "#", slashChar: "$", suffix: "#!" }
+    },
+    {
+      name: "NFD（濁点分解）文字のNFC正規化一致テスト",
+      phrase: "ねこ".normalize("NFD"), // 濁点結合文字
+      config: { length: 24, symbolMode: "standard" }
     },
     {
       name: "特殊文字入りフレーズ ('や\"や$含む)",
