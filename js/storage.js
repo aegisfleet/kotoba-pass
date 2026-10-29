@@ -15,10 +15,10 @@ const STORAGE_KEYS = {
 const DEFAULT_PRESETS = [
   {
     id: "preset-standard",
-    name: "標準 (20文字・Base64記号)",
+    name: "標準 (24文字・Base64記号)",
     isDefault: true,
     config: {
-      length: 20,
+      length: 24,
       symbolMode: "standard",
       plusChar: "!",
       slashChar: "@",
@@ -27,24 +27,11 @@ const DEFAULT_PRESETS = [
     }
   },
   {
-    id: "preset-alnum",
-    name: "英数字のみ (16文字・記号なし)",
-    isDefault: true,
-    config: {
-      length: 16,
-      symbolMode: "none",
-      plusChar: "!",
-      slashChar: "@",
-      suffix: "",
-      separator: ":"
-    }
-  },
-  {
     id: "preset-web-friendly",
-    name: "Web推奨 (20文字・!@置換)",
+    name: "Web推奨 (24文字・!@置換)",
     isDefault: true,
     config: {
-      length: 20,
+      length: 24,
       symbolMode: "custom",
       plusChar: "!",
       slashChar: "@",
@@ -54,14 +41,40 @@ const DEFAULT_PRESETS = [
   },
   {
     id: "preset-strict-symbol",
-    name: "記号確実 (20文字・末尾!)",
+    name: "記号確実 (24文字・末尾!)",
     isDefault: true,
     config: {
-      length: 20,
+      length: 24,
       symbolMode: "custom",
       plusChar: "!",
       slashChar: "@",
       suffix: "!",
+      separator: ":"
+    }
+  },
+  {
+    id: "preset-alnum",
+    name: "英数字のみ (24文字・記号なし)",
+    isDefault: true,
+    config: {
+      length: 24,
+      symbolMode: "none",
+      plusChar: "!",
+      slashChar: "@",
+      suffix: "",
+      separator: ":"
+    }
+  },
+  {
+    id: "preset-legacy-16",
+    name: "上限対策 (16文字・英数字のみ)",
+    isDefault: true,
+    config: {
+      length: 16,
+      symbolMode: "none",
+      plusChar: "!",
+      slashChar: "@",
+      suffix: "",
       separator: ":"
     }
   }
@@ -93,7 +106,7 @@ class StorageManager {
   static saveConfig(config) {
     try {
       const safeConfig = {
-        length: parseInt(config.length, 10) || 20,
+        length: parseInt(config.length, 10) || 24,
         symbolMode: config.symbolMode || "standard",
         plusChar: config.plusChar !== undefined ? config.plusChar : "!",
         slashChar: config.slashChar !== undefined ? config.slashChar : "@",

@@ -21,7 +21,7 @@ async function generatePassword(phrase, config = {}) {
 
   const separator = config.separator !== undefined ? config.separator : ":";
   const service = (config.service || "").trim();
-  const length = parseInt(config.length, 10) || 20;
+  const length = parseInt(config.length, 10) || 24;
   const symbolMode = config.symbolMode || "standard";
   const plusChar = config.plusChar !== undefined ? config.plusChar : "!";
   const slashChar = config.slashChar !== undefined ? config.slashChar : "@";
