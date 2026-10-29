@@ -4,9 +4,9 @@
 > 日本語の秘密のフレーズから決定論的にパスワードを生成する、ベンダーロックインゼロのステートレス・パスワードジェネレーター。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Zero Vendor Lock-in](https://img.shields.io/badge/Vendor%20Lock--in-ZERO-emerald)](https://github.com)
-[![Stateless](https://img.shields.io/badge/Storage-100%25%20Stateless-indigo)](https://github.com)
-[![Build Free](https://img.shields.io/badge/Build-Vanilla%20JS%20(No%20Build)-orange)](https://github.com)
+[![Zero Vendor Lock-in](https://img.shields.io/badge/Vendor%20Lock--in-ZERO-emerald)](https://github.com/aegisfleet/kotoba-pass)
+[![Stateless](https://img.shields.io/badge/Storage-100%25%20Stateless-indigo)](https://github.com/aegisfleet/kotoba-pass)
+[![Build Free](https://img.shields.io/badge/Build-Vanilla%20JS%20(No%20Build)-orange)](https://github.com/aegisfleet/kotoba-pass)
 
 ---
 
