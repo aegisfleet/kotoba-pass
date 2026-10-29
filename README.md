@@ -55,7 +55,7 @@ Base64が標準で出力する記号は `+` と `/` です。サービスの要�
   * *Bash*: `| tr -d '+/='`
 * **カスタム置換**: Webサービスで使いやすい記号（例: `+` → `!`, `/` → `@`）へ置換。
   * *PowerShell*: `.Replace("+","!").Replace("/","@").Replace("=","")`
-  * *Bash*: `| tr '+/' '!@' | tr -d '='`
+  * *Bash*: `| tr "+/" "!@" | tr -d '='`
 
 ### 2. 「記号必須」サイトへの対策（サフィックス付加）
 Base64の中で記号（`+`, `/`）が現れる確率は64文字中2文字のため、短いパスワードでは記号が1つも含まれないことがあります。  
@@ -90,7 +90,8 @@ kotoba-pass/
 │   ├── app.js        # UIイベント制御・リアルタイム反映・コピー処理
 │   ├── generator.js  # Web Crypto APIによるハッシュ生成・文字列変換ロジック
 │   ├── cli-builder.js# Windows(PowerShell) / Linux(Bash) コマンド動的生成
-│   └── storage.js    # LocalStorageへの設定・プリセット保存・URLクエリ共有
+│   ├── storage.js    # LocalStorageへの設定・プリセット保存・URLクエリ共有
+│   └── tailwind.js   # Tailwind CSS ローカル同梱バンドル（完全オフライン対応）
 ├── manifest.json     # PWA対応（ホーム画面追加）
 ├── sw.js             # Service Worker（完全オフラインキャッシュ動作）
 ├── icons/            # アイコン画像 (SVG / 192px / 512px)

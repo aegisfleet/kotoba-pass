@@ -50,10 +50,10 @@ html.dark .char-upper {
 }
 
 .char-lower {
-  color: #0284c7; /* sky-600 */
+  color: #0f172a; /* slate-900 (標準テキスト色で大文字と明確に差別化) */
 }
 html.dark .char-lower {
-  color: #38bdf8; /* sky-400 */
+  color: #f8fafc; /* slate-50 */
 }
 
 .char-number {

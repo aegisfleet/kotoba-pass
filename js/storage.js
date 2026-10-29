@@ -91,7 +91,11 @@ class StorageManager {
       const raw = localStorage.getItem(STORAGE_KEYS.CURRENT_CONFIG);
       if (raw) {
         const parsed = JSON.parse(raw);
-        return { ...DEFAULT_CONFIG, ...parsed };
+        const config = { ...DEFAULT_CONFIG, ...parsed };
+        if (typeof config.length === "number") {
+          config.length = Math.min(36, Math.max(8, config.length));
+        }
+        return config;
       }
     } catch (e) {
       console.warn("Failed to load config from localStorage:", e);
@@ -105,8 +109,9 @@ class StorageManager {
    */
   static saveConfig(config) {
     try {
+      const parsedLen = parseInt(config.length, 10) || 24;
       const safeConfig = {
-        length: parseInt(config.length, 10) || 24,
+        length: Math.min(36, Math.max(8, parsedLen)),
         symbolMode: config.symbolMode || "standard",
         plusChar: config.plusChar !== undefined ? config.plusChar : "!",
         slashChar: config.slashChar !== undefined ? config.slashChar : "@",
@@ -211,7 +216,7 @@ class StorageManager {
 
     if (params.has("len")) {
       const len = parseInt(params.get("len"), 10);
-      if (!isNaN(len) && len >= 8 && len <= 40) {
+      if (!isNaN(len) && len >= 8 && len <= 36) {
         config.length = len;
         hasValues = true;
       }

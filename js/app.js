@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isPasswordMasked = false;
   let isPhraseMasked = false;
   let generatedPasswordValue = "";
+  let generationSeq = 0; // 非同期ハッシュ計算の競合防止用シーケンス
   let lastCliOutputs = { windowsCmd: "", linuxCmd: "", rawWindowsCmd: "", rawLinuxCmd: "" };
 
   // Check URL parameters for configuration overrides (Base on DEFAULT_CONFIG to avoid stale local overrides)
@@ -156,10 +157,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // --- Length Display Helper ---
+  function updateLengthDisplay() {
+    if (currentConfig.suffix && currentConfig.suffix.length > 0) {
+      displayLength.textContent = `${currentConfig.length} (+${currentConfig.suffix.length})`;
+    } else {
+      displayLength.textContent = currentConfig.length;
+    }
+  }
+
   // --- Initialize UI with currentConfig ---
   function applyConfigToInputs() {
     inputLength.value = currentConfig.length;
-    displayLength.textContent = currentConfig.length;
+    updateLengthDisplay();
     inputPlusChar.value = currentConfig.plusChar || "!";
     inputSlashChar.value = currentConfig.slashChar || "@";
     inputSuffix.value = currentConfig.suffix || "";
@@ -190,14 +200,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPresets() {
     presetsContainer.innerHTML = "";
     const presets = StorageManager.loadPresets();
+    const isCustom = currentConfig.symbolMode === "custom";
 
     presets.forEach(preset => {
       const isSelected = 
         preset.config.length === currentConfig.length &&
         preset.config.symbolMode === currentConfig.symbolMode &&
         (preset.config.suffix || "") === (currentConfig.suffix || "") &&
-        (preset.config.plusChar || "!") === (currentConfig.plusChar || "!") &&
-        (preset.config.slashChar || "@") === (currentConfig.slashChar || "@");
+        (preset.config.separator || ":") === (currentConfig.separator || ":") &&
+        (!isCustom || (
+          (preset.config.plusChar || "!") === (currentConfig.plusChar || "!") &&
+          (preset.config.slashChar || "@") === (currentConfig.slashChar || "@")
+        ));
 
       const btnWrapper = document.createElement("div");
       btnWrapper.className = "inline-flex items-center rounded-xl overflow-hidden border transition-all text-xs " +
@@ -241,24 +255,50 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateBadges(strength) {
     badgeLength.textContent = `${strength.length} 文字`;
 
-    const setBadgeState = (elem, active, label) => {
+    const setBadgeState = (elem, active, label, activeCls, checkColorCls) => {
       if (active) {
-        elem.className = "px-2.5 py-1 rounded-md border font-mono transition-colors text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 font-medium";
-        elem.innerHTML = `<span class="mr-1 text-emerald-500 dark:text-emerald-400">✓</span>${label}`;
+        elem.className = `px-2.5 py-1 rounded-md border font-mono transition-colors text-xs font-medium ${activeCls}`;
+        elem.innerHTML = `<span class="mr-1 ${checkColorCls}">✓</span>${label}`;
       } else {
         elem.className = "px-2.5 py-1 rounded-md border font-mono transition-colors text-xs border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900";
         elem.innerHTML = `<span class="mr-1 text-slate-400 dark:text-slate-600">-</span>${label}`;
       }
     };
 
-    setBadgeState(badgeUpper, strength.hasUpper, "大文字 [A-Z]");
-    setBadgeState(badgeLower, strength.hasLower, "小文字 [a-z]");
-    setBadgeState(badgeNumber, strength.hasNumber, "数字 [0-9]");
-    setBadgeState(badgeSymbol, strength.hasSymbol, "記号");
+    // 文字ハイライト色と連動させたバッジ配色
+    setBadgeState(
+      badgeUpper, 
+      strength.hasUpper, 
+      "大文字 [A-Z]", 
+      "border-blue-500/40 text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10",
+      "text-blue-500 dark:text-blue-400"
+    );
+    setBadgeState(
+      badgeLower, 
+      strength.hasLower, 
+      "小文字 [a-z]", 
+      "border-slate-400 dark:border-slate-600 text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80",
+      "text-slate-700 dark:text-slate-300"
+    );
+    setBadgeState(
+      badgeNumber, 
+      strength.hasNumber, 
+      "数字 [0-9]", 
+      "border-emerald-500/40 text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10",
+      "text-emerald-500 dark:text-emerald-400"
+    );
+    setBadgeState(
+      badgeSymbol, 
+      strength.hasSymbol, 
+      "記号", 
+      "border-rose-500/40 text-rose-600 dark:text-rose-300 bg-rose-50 dark:bg-rose-500/10",
+      "text-rose-500 dark:text-rose-400"
+    );
   }
 
   // --- Update Generation & CLI Output ---
   async function updateGeneration() {
+    const currentSeq = ++generationSeq;
     const rawPhrase = inputPhrase.value;
     const rawService = inputService.value;
     const phrase = rawPhrase.trim();
@@ -305,7 +345,9 @@ document.addEventListener("DOMContentLoaded", () => {
       btnCopyPassword.disabled = true;
       updateBadges({ hasUpper: false, hasLower: false, hasNumber: false, hasSymbol: false, length: 0 });
     } else {
-      generatedPasswordValue = await generatePassword(phrase, currentConfig);
+      const pw = await generatePassword(phrase, currentConfig);
+      if (currentSeq !== generationSeq) return; // 古い非同期計算結果なら破棄
+      generatedPasswordValue = pw;
       btnCopyPassword.disabled = false;
 
       // Mask or show password (with color highlighting)
@@ -345,6 +387,10 @@ document.addEventListener("DOMContentLoaded", () => {
     btnToggleTheme.addEventListener("click", () => {
       const isDark = document.documentElement.classList.toggle("dark");
       localStorage.setItem("kotobapass_theme", isDark ? "dark" : "light");
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) {
+        themeMeta.setAttribute("content", isDark ? "#0f172a" : "#f8fafc");
+      }
       showToast(isDark ? "ダークモードに切り替えました" : "ライトモードに切り替えました", 1800);
     });
   }
@@ -402,8 +448,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Length slider
   inputLength.addEventListener("input", (e) => {
-    displayLength.textContent = e.target.value;
     currentConfig.length = parseInt(e.target.value, 10);
+    updateLengthDisplay();
     StorageManager.saveConfig(currentConfig);
     renderPresets();
     updateGeneration();
@@ -422,21 +468,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Custom symbol inputs
   inputPlusChar.addEventListener("input", () => {
-    currentConfig.plusChar = inputPlusChar.value || "!";
+    const rawVal = inputPlusChar.value;
+    if (rawVal) {
+      if (!SAFE_SYMBOLS.includes(rawVal)) {
+        inputPlusChar.value = "!";
+        currentConfig.plusChar = "!";
+        showToast("使用可能な記号 (! @ # $ % ^ & * _ + = ~ ?) を入力してください", 2000);
+      } else {
+        currentConfig.plusChar = rawVal;
+      }
+    } else {
+      currentConfig.plusChar = "!";
+    }
     StorageManager.saveConfig(currentConfig);
+    renderPresets();
     updateGeneration();
   });
 
   inputSlashChar.addEventListener("input", () => {
-    currentConfig.slashChar = inputSlashChar.value || "@";
+    const rawVal = inputSlashChar.value;
+    if (rawVal) {
+      if (!SAFE_SYMBOLS.includes(rawVal)) {
+        inputSlashChar.value = "@";
+        currentConfig.slashChar = "@";
+        showToast("使用可能な記号 (! @ # $ % ^ & * _ + = ~ ?) を入力してください", 2000);
+      } else {
+        currentConfig.slashChar = rawVal;
+      }
+    } else {
+      currentConfig.slashChar = "@";
+    }
     StorageManager.saveConfig(currentConfig);
+    renderPresets();
     updateGeneration();
   });
 
   // Suffix input
   inputSuffix.addEventListener("input", () => {
     currentConfig.suffix = inputSuffix.value;
+    updateLengthDisplay();
     StorageManager.saveConfig(currentConfig);
+    renderPresets();
     updateGeneration();
   });
 
@@ -444,6 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
   inputSeparator.addEventListener("input", () => {
     currentConfig.separator = inputSeparator.value || ":";
     StorageManager.saveConfig(currentConfig);
+    renderPresets();
     updateGeneration();
   });
 
@@ -489,15 +562,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Share Config via URL Query
-  btnShareConfig.addEventListener("click", async () => {
+  btnShareConfig.addEventListener("click", () => {
     const qs = StorageManager.configToQueryString(currentConfig);
     const url = `${window.location.origin}${window.location.pathname}${qs}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast("設定URLをクリップボードにコピーしました！");
-    } catch (e) {
-      prompt("設定URLをコピーしてください:", url);
-    }
+    copyToClipboard(url, "設定URLをクリップボードにコピーしました！");
   });
 
   // CLI Tabs (Keep dark: classes on tab switch & update tab label)
