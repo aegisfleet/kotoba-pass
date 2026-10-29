@@ -95,11 +95,13 @@ $g.FillEllipse($dotGreen, 140, 320, 10, 10)
 $g.DrawString("CLI Emergency Recovery (PowerShell / Bash)", $fontCardHeader, $brushSlate400, 165, 318)
 
 $cmdPS1 = '$bytes = [Text.Encoding]::UTF8.GetBytes("日本語のフレーズ")'
-$cmdPS2 = '[Convert]::ToBase64String((New-Object Security.Cryptography.SHA256CryptoServiceProvider).ComputeHash($bytes)).Substring(0,24)'
-$g.DrawString("# Windows (PowerShell)", $fontCode, $brushSlate400, 100, 350)
-$g.DrawString($cmdPS1, $fontCode, $brushBrand400, 100, 375)
-$g.DrawString($cmdPS2, $fontCode, $brushWhite, 100, 400)
-$g.DrawString("=> 7kABH8wcX4cIgRv7TTD3I4S3  (サイトが消えても1秒で完全復元)", $fontCode, $brushEmerald400, 100, 435)
+$cmdPS2_a = '[Convert]::ToBase64String('
+$cmdPS2_b = '  (New-Object Security.Cryptography.SHA256CryptoServiceProvider).ComputeHash($bytes)).Substring(0,24)'
+$g.DrawString("# Windows (PowerShell)", $fontCode, $brushSlate400, 100, 348)
+$g.DrawString($cmdPS1, $fontCode, $brushBrand400, 100, 372)
+$g.DrawString($cmdPS2_a, $fontCode, $brushWhite, 100, 396)
+$g.DrawString($cmdPS2_b, $fontCode, $brushWhite, 100, 420)
+$g.DrawString("=> 7kABH8wcX4cIgRv7TTD3I4S3  (サイトが消えても1秒で完全復元)", $fontCode, $brushEmerald400, 100, 452)
 
 # バッジ描画用ヘルパー関数
 function Draw-BadgeLabel([string]$text, [int]$x, [int]$y, [int]$w, [System.Drawing.Color]$col) {
