@@ -3,6 +3,31 @@
  * Handles UI interactions, reactive rendering, clipboard actions, presets, color highlighting, and PWA registration.
  */
 
+/**
+ * パスワード文字列の文字種（大文字・小文字・数字・記号）をカラーハイライト表示するためのHTMLを生成する純粋関数
+ * @param {string} password
+ * @returns {string} HTML文字列
+ */
+function renderHighlightedPassword(password) {
+  if (!password) return "";
+  let html = "";
+  for (let i = 0; i < password.length; i++) {
+    const c = password[i];
+    let cls = "char-symbol";
+    if (/[A-Z]/.test(c)) {
+      cls = "char-upper";
+    } else if (/[a-z]/.test(c)) {
+      cls = "char-lower";
+    } else if (/[0-9]/.test(c)) {
+      cls = "char-number";
+    }
+    // Escape HTML entities if any
+    const escapedChar = c === "<" ? "&lt;" : (c === ">" ? "&gt;" : (c === "&" ? "&amp;" : c));
+    html += `<span class="${cls}">${escapedChar}</span>`;
+  }
+  return html;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // --- State ---
   let currentConfig = StorageManager.loadConfig();
@@ -129,26 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("コピーに失敗しました。手動でコピーしてください");
       }
     }
-  }
-
-  // --- Password Character Color Highlighter ---
-  function renderHighlightedPassword(password) {
-    let html = "";
-    for (let i = 0; i < password.length; i++) {
-      const c = password[i];
-      let cls = "char-symbol";
-      if (/[A-Z]/.test(c)) {
-        cls = "char-upper";
-      } else if (/[a-z]/.test(c)) {
-        cls = "char-lower";
-      } else if (/[0-9]/.test(c)) {
-        cls = "char-number";
-      }
-      // Escape HTML entities if any
-      const escapedChar = c === "<" ? "&lt;" : (c === ">" ? "&gt;" : (c === "&" ? "&amp;" : c));
-      html += `<span class="${cls}">${escapedChar}</span>`;
-    }
-    return html;
   }
 
   // --- Initialize UI with currentConfig ---
