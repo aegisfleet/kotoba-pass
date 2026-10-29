@@ -20,6 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- DOM Elements ---
+  const btnToggleTheme = document.getElementById("btn-toggle-theme");
+  const btnClearAll = document.getElementById("btn-clear-all");
+  const btnClearPhrase = document.getElementById("btn-clear-phrase");
+  const btnClearService = document.getElementById("btn-clear-service");
+
   const inputPhrase = document.getElementById("input-phrase");
   const inputService = document.getElementById("input-service");
   const btnTogglePhraseMask = document.getElementById("btn-toggle-phrase-mask");
@@ -93,11 +98,11 @@ document.addEventListener("DOMContentLoaded", () => {
     symbolModeButtons.forEach(btn => {
       const mode = btn.getAttribute("data-symbol-mode");
       if (mode === currentConfig.symbolMode) {
-        btn.classList.add("border-brand-500", "bg-brand-500/20", "text-brand-300");
-        btn.classList.remove("border-slate-700", "bg-slate-800/80", "text-slate-200");
+        btn.classList.add("border-brand-500", "bg-brand-500/10", "dark:bg-brand-500/20", "text-brand-600", "dark:text-brand-300", "font-semibold");
+        btn.classList.remove("border-slate-300", "dark:border-slate-700", "bg-slate-100", "dark:bg-slate-800/80", "text-slate-800", "dark:text-slate-200");
       } else {
-        btn.classList.remove("border-brand-500", "bg-brand-500/20", "text-brand-300");
-        btn.classList.add("border-slate-700", "bg-slate-800/80", "text-slate-200");
+        btn.classList.remove("border-brand-500", "bg-brand-500/10", "dark:bg-brand-500/20", "text-brand-600", "dark:text-brand-300", "font-semibold");
+        btn.classList.add("border-slate-300", "dark:border-slate-700", "bg-slate-100", "dark:bg-slate-800/80", "text-slate-800", "dark:text-slate-200");
       }
     });
 
@@ -126,8 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const btnWrapper = document.createElement("div");
       btnWrapper.className = "inline-flex items-center rounded-xl overflow-hidden border transition-all text-xs " +
         (isSelected 
-          ? "border-brand-500 bg-brand-500/20 text-brand-300 font-semibold" 
-          : "border-slate-800 bg-slate-950/70 text-slate-300 hover:border-slate-700 hover:bg-slate-800/50");
+          ? "border-brand-500 bg-brand-500/10 dark:bg-brand-500/20 text-brand-600 dark:text-brand-300 font-semibold shadow-sm" 
+          : "border-slate-300 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-950/70 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-700 hover:bg-slate-200/60 dark:hover:bg-slate-800/50");
 
       const mainBtn = document.createElement("button");
       mainBtn.type = "button";
@@ -145,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!preset.isDefault) {
         const delBtn = document.createElement("button");
         delBtn.type = "button";
-        delBtn.className = "px-2 py-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border-l border-slate-800 transition-colors focus:outline-none";
+        delBtn.className = "px-2 py-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 border-l border-slate-300 dark:border-slate-800 transition-colors focus:outline-none";
         delBtn.innerHTML = `&times;`;
         delBtn.title = "プリセットを削除";
         delBtn.addEventListener("click", (e) => {
@@ -169,11 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const setBadgeState = (elem, active, label) => {
       if (active) {
-        elem.className = "px-2.5 py-1 rounded-md border font-mono transition-colors text-xs border-emerald-500/40 text-emerald-300 bg-emerald-500/10 font-medium";
-        elem.innerHTML = `<span class="mr-1 text-emerald-400">✓</span>${label}`;
+        elem.className = "px-2.5 py-1 rounded-md border font-mono transition-colors text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 font-medium";
+        elem.innerHTML = `<span class="mr-1 text-emerald-500 dark:text-emerald-400">✓</span>${label}`;
       } else {
-        elem.className = "px-2.5 py-1 rounded-md border font-mono transition-colors text-xs border-slate-800 text-slate-500 bg-slate-900";
-        elem.innerHTML = `<span class="mr-1 text-slate-600">-</span>${label}`;
+        elem.className = "px-2.5 py-1 rounded-md border font-mono transition-colors text-xs border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900";
+        elem.innerHTML = `<span class="mr-1 text-slate-400 dark:text-slate-600">-</span>${label}`;
       }
     };
 
@@ -185,8 +190,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Update Generation & CLI Output ---
   async function updateGeneration() {
-    const phrase = inputPhrase.value.trim();
-    const service = inputService.value.trim();
+    const rawPhrase = inputPhrase.value;
+    const rawService = inputService.value;
+    const phrase = rawPhrase.trim();
+    const service = rawService.trim();
+
+    // Toggle individual clear buttons
+    if (rawPhrase.length > 0) {
+      btnClearPhrase.classList.remove("hidden");
+    } else {
+      btnClearPhrase.classList.add("hidden");
+    }
+
+    if (rawService.length > 0) {
+      btnClearService.classList.remove("hidden");
+    } else {
+      btnClearService.classList.add("hidden");
+    }
 
     currentConfig.service = service;
     currentConfig.length = parseInt(inputLength.value, 10);
@@ -198,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!phrase) {
       generatedPasswordValue = "";
       passwordDisplay.textContent = "（フレーズを入力してください）";
-      passwordDisplay.className = "font-mono-code text-lg sm:text-xl font-bold tracking-wider text-slate-600 select-none";
+      passwordDisplay.className = "font-mono-code text-lg sm:text-xl font-bold tracking-wider text-slate-400 dark:text-slate-600 select-none";
       btnCopyPassword.disabled = true;
       updateBadges({ hasUpper: false, hasLower: false, hasNumber: false, hasSymbol: false, length: 0 });
     } else {
@@ -208,10 +228,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // Mask or show password
       if (isPasswordMasked) {
         passwordDisplay.textContent = "•".repeat(generatedPasswordValue.length);
-        passwordDisplay.className = "font-mono-code text-xl sm:text-2xl font-bold tracking-widest text-brand-300 select-none";
+        passwordDisplay.className = "font-mono-code text-xl sm:text-2xl font-bold tracking-widest text-brand-600 dark:text-brand-300 select-none";
       } else {
         passwordDisplay.textContent = generatedPasswordValue;
-        passwordDisplay.className = "font-mono-code text-xl sm:text-2xl font-bold tracking-wider text-white select-all";
+        passwordDisplay.className = "font-mono-code text-xl sm:text-2xl font-bold tracking-wider text-slate-900 dark:text-white select-all";
       }
 
       const strength = analyzePasswordStrength(generatedPasswordValue);
@@ -231,6 +251,42 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Event Listeners ---
+
+  // Theme Toggle
+  if (btnToggleTheme) {
+    btnToggleTheme.addEventListener("click", () => {
+      const isDark = document.documentElement.classList.toggle("dark");
+      localStorage.setItem("kotobapass_theme", isDark ? "dark" : "light");
+      showToast(isDark ? "ダークモードに切り替えました" : "ライトモードに切り替えました", 1800);
+    });
+  }
+
+  // Clear Inputs
+  if (btnClearAll) {
+    btnClearAll.addEventListener("click", () => {
+      inputPhrase.value = "";
+      inputService.value = "";
+      inputPhrase.focus();
+      updateGeneration();
+      showToast("入力値をクリアしました", 1800);
+    });
+  }
+
+  if (btnClearPhrase) {
+    btnClearPhrase.addEventListener("click", () => {
+      inputPhrase.value = "";
+      inputPhrase.focus();
+      updateGeneration();
+    });
+  }
+
+  if (btnClearService) {
+    btnClearService.addEventListener("click", () => {
+      inputService.value = "";
+      inputService.focus();
+      updateGeneration();
+    });
+  }
 
   // Phrase & Service inputs
   inputPhrase.addEventListener("input", updateGeneration);
