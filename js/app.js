@@ -100,6 +100,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }, duration);
   }
 
+  // --- Clipboard Helper with Fallback ---
+  async function copyToClipboard(text, successMessage = "コピーしました！") {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(successMessage);
+    } catch (clipboardError) {
+      // Fallback for environments where Async Clipboard API is denied (e.g. non-HTTPS, iframe, old browsers)
+      console.warn("Async Clipboard API failed, falling back to execCommand:", clipboardError);
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "absolute";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        const successful = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (successful) {
+          showToast(successMessage);
+        } else {
+          showToast("コピーに失敗しました。手動でコピーしてください");
+        }
+      } catch (fallbackError) {
+        console.error("Fallback clipboard execution failed:", fallbackError);
+        showToast("コピーに失敗しました。手動でコピーしてください");
+      }
+    }
+  }
+
   // --- Password Character Color Highlighter ---
   function renderHighlightedPassword(password) {
     let html = "";
@@ -412,20 +443,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Copy Password
-  btnCopyPassword.addEventListener("click", async () => {
+  btnCopyPassword.addEventListener("click", () => {
     if (!generatedPasswordValue) return;
-    try {
-      await navigator.clipboard.writeText(generatedPasswordValue);
-      showToast("パスワードをコピーしました！");
-    } catch (err) {
-      const ta = document.createElement("textarea");
-      ta.value = generatedPasswordValue;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      showToast("パスワードをコピーしました！");
-    }
+    copyToClipboard(generatedPasswordValue, "パスワードをコピーしました！");
   });
 
   // Inline Preset Creator Events
@@ -498,25 +518,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Copy CLI Command
-  btnCopyCli.addEventListener("click", async () => {
+  btnCopyCli.addEventListener("click", () => {
     const rawCmd = activeTab === "win" ? lastCliOutputs.rawWindowsCmd : lastCliOutputs.rawLinuxCmd;
     const displayCmd = activeTab === "win" ? lastCliOutputs.windowsCmd : lastCliOutputs.linuxCmd;
     
     // If the user has entered a phrase, copy with phrase
     const cmdToCopy = inputPhrase.value.trim() ? rawCmd : displayCmd;
-
-    try {
-      await navigator.clipboard.writeText(cmdToCopy);
-      showToast("CLIコマンドをコピーしました！");
-    } catch (e) {
-      const ta = document.createElement("textarea");
-      ta.value = cmdToCopy;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      showToast("CLIコマンドをコピーしました！");
-    }
+    copyToClipboard(cmdToCopy, "CLIコマンドをコピーしました！");
   });
 
   // --- Initial Render ---
