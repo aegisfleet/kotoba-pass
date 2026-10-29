@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="60%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <!-- Logo Gradient -->
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+
+    <!-- Radial Glows -->
+    <radialGradient id="glow1" cx="80%" cy="15%" r="50%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glow2" cx="15%" cy="85%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)" />
+  <circle cx="950" cy="100" r="450" fill="url(#glow1)" />
+  <circle cx="150" cy="550" r="400" fill="url(#glow2)" />
+  <rect x="2" y="2" width="1196" height="626" fill="none" stroke="#334155" stroke-width="2" rx="8" />
+
+  <!-- Zero Vendor Lock-in Pill -->
+  <g transform="translate(80, 52)">
+    <rect width="320" height="34" rx="17" fill="#4f46e5" fill-opacity="0.2" stroke="#6366f1" stroke-width="1.5" />
+    <text x="160" y="22" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#a5b4fc" text-anchor="middle" letter-spacing="1.5">ZERO VENDOR LOCK-IN TOOL</text>
+  </g>
+
+  <!-- Catchphrase -->
+  <text x="80" y="145" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="34" font-weight="800" fill="#34d399" letter-spacing="1">
+    「思い出せない」を、なくしたい。
+  </text>
+
+  <!-- Main Title Area -->
+  <g transform="translate(80, 175)">
+    <!-- Lock Icon -->
+    <rect width="64" height="64" rx="18" fill="url(#logoGrad)" />
+    <!-- Lock Shackle -->
+    <path d="M24 30 V22 C24 17.6 27.6 14 32 14 C36.4 14 40 17.6 40 22 V30" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+    <!-- Lock Body -->
+    <rect x="18" y="28" width="28" height="24" rx="4" fill="#ffffff" />
+    <circle cx="32" cy="38" r="3" fill="#4338ca" />
+
+    <!-- App Name -->
+    <text x="84" y="48" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="46" font-weight="800" fill="#ffffff">コトバパス</text>
+    <rect x="350" y="14" width="170" height="38" rx="8" fill="#4f46e5" fill-opacity="0.25" stroke="#6366f1" stroke-width="1.5" />
+    <text x="435" y="40" font-family="ui-monospace, monospace" font-size="22" font-weight="700" fill="#c7d2fe" text-anchor="middle">KotobaPass</text>
+  </g>
+
+  <!-- Subtitle -->
+  <text x="80" y="280" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="20" font-weight="500" fill="#cbd5e1">
+    日本語のフレーズから決定論的に生成するステートレス・パスワード
+  </text>
+
+  <!-- CLI Code Preview Card -->
+  <g transform="translate(80, 315)">
+    <rect width="1040" height="185" rx="14" fill="#090d16" stroke="#1e293b" stroke-width="1.5" />
+    
+    <!-- Dots -->
+    <circle cx="28" cy="24" r="6" fill="#ef4444" />
+    <circle cx="48" cy="24" r="6" fill="#f59e0b" />
+    <circle cx="68" cy="24" r="6" fill="#10b981" />
+    <text x="96" y="28" font-family="ui-monospace, monospace" font-size="12" fill="#64748b">CLI Emergency Recovery (PowerShell / Bash)</text>
+
+    <!-- Code Line 1 -->
+    <text x="28" y="66" font-family="ui-monospace, monospace" font-size="15" fill="#64748b"># Windows PowerShell</text>
+    <text x="28" y="94" font-family="ui-monospace, monospace" font-size="15" fill="#818cf8">
+      $bytes = [Text.Encoding]::UTF8.GetBytes("日本語の秘密のフレーズ")
+    </text>
+    <text x="28" y="122" font-family="ui-monospace, monospace" font-size="14.5" fill="#f8fafc">
+      [Convert]::ToBase64String((New-Object Security.Cryptography.SHA256CryptoServiceProvider).ComputeHash($bytes)).Substring(0,24)
+    </text>
+    
+    <!-- Result Arrow -->
+    <text x="28" y="156" font-family="ui-monospace, monospace" font-size="15" font-weight="700" fill="#34d399">
+      =&gt; 7kABH8wcX4cIgRv7TTD3I4S3  <tspan fill="#94a3b8" font-weight="400">(サイトが消えても1秒で全く同じパスワードを復元)</tspan>
+    </text>
+  </g>
+
+  <!-- Feature Badges -->
+  <g transform="translate(80, 535)">
+    <!-- Badge 1 -->
+    <g transform="translate(0, 0)">
+      <rect width="210" height="42" rx="10" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-width="1.2" />
+      <text x="105" y="26" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="14" font-weight="700" fill="#34d399" text-anchor="middle">✓ 完全ステートレス</text>
+    </g>
+    <!-- Badge 2 -->
+    <g transform="translate(230, 0)">
+      <rect width="250" height="42" rx="10" fill="#3b82f6" fill-opacity="0.12" stroke="#3b82f6" stroke-width="1.2" />
+      <text x="125" y="26" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="14" font-weight="700" fill="#60a5fa" text-anchor="middle">✓ サーバー保存・送信ゼロ</text>
+    </g>
+    <!-- Badge 3 -->
+    <g transform="translate(500, 0)">
+      <rect width="250" height="42" rx="10" fill="#8b5cf6" fill-opacity="0.12" stroke="#8b5cf6" stroke-width="1.2" />
+      <text x="125" y="26" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="14" font-weight="700" fill="#a78bfa" text-anchor="middle">✓ ベンダーロックインゼロ</text>
+    </g>
+    <!-- Badge 4 -->
+    <g transform="translate(770, 0)">
+      <rect width="250" height="42" rx="10" fill="#f97316" fill-opacity="0.12" stroke="#f97316" stroke-width="1.2" />
+      <text x="125" y="26" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif" font-size="14" font-weight="700" fill="#fb923c" text-anchor="middle">✓ PWAオフライン動作対応</text>
+    </g>
+  </g>
+</svg>

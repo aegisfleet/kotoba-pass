@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>コトバパス (KotobaPass) - 思い出せないをなくしたい。日本語から作る忘れないパスワード</title>
   <meta name="description" content="日本語のフレーズから決定論的にパスワードを生成。サーバー通信ゼロ・保存ゼロ・OS標準のCLIコマンドで永久に再現可能なステートレスパスワード生成ツール。">
+  
+  <!-- Open Graph Protocol (OGP) -->
+  <meta property="og:title" content="コトバパス (KotobaPass) - 思い出せないをなくしたい。日本語から作る忘れないパスワード">
+  <meta property="og:description" content="日本語のフレーズから決定論的にパスワードを導出。サーバー通信ゼロ・保存ゼロ・OS標準のCLIコマンドで永久に再現可能なステートレスパスワード生成ツール。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="images/ogp.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="コトバパス (KotobaPass) - 思い出せないをなくしたい。">
+  <meta name="twitter:description" content="日本語の秘密のフレーズから強力なパスワードを導出。サーバー保存ゼロ・CLIで永久再現。">
+  <meta name="twitter:image" content="images/ogp.png">
+
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
@@ -120,19 +135,18 @@
             </label>
             <button id="btn-toggle-phrase-mask" type="button" class="text-xs text-slate-400 hover:text-slate-200 flex items-center space-x-1 focus:outline-none">
               <span id="phrase-mask-icon">
-                <!-- Eye icon -->
+                <!-- Eye off icon -->
                 <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path>
                 </svg>
               </span>
-              <span id="phrase-mask-text">フレーズを表示</span>
+              <span id="phrase-mask-text">フレーズを隠す</span>
             </button>
           </div>
           <div class="relative">
             <input 
               id="input-phrase" 
-              type="password" 
+              type="text" 
               autocomplete="off" 
               autocapitalize="off" 
               spellcheck="false"
@@ -180,7 +194,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path>
                 </svg>
               </span>
-              <span id="pw-mask-text">マスクを解除</span>
+              <span id="pw-mask-text">マスクする</span>
             </button>
           </div>
         </div>
@@ -370,7 +384,7 @@
 
         <!-- Mask Phrase in CLI Toggle -->
         <label class="inline-flex items-center cursor-pointer select-none self-start sm:self-auto bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
-          <input id="check-mask-cli-phrase" type="checkbox" checked class="sr-only peer">
+          <input id="check-mask-cli-phrase" type="checkbox" class="sr-only peer">
           <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-600 relative"></div>
           <span class="ml-2 text-xs text-slate-300">コマンド上のフレーズをマスク</span>
         </label>

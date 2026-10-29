@@ -12,7 +12,9 @@ const ASSETS_TO_CACHE = [
   "./js/storage.js",
   "./js/app.js",
   "./manifest.json",
-  "./icons/icon.svg"
+  "./icons/icon.svg",
+  "./images/ogp.png",
+  "./images/ogp.svg"
 ];
 
 // Install Event - Pre-cache core assets
@@ -67,3 +69,4 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+

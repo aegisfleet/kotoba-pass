@@ -80,7 +80,10 @@ PCとスマートフォン間で同じ設定（文字数や記号モード）を
 
 ```text
 kotoba-pass/
-├── index.html        # メインUI（単一ページ完結）
+├── .github/
+│   └── workflows/
+│       └── deploy.yml# GitHub Pages デプロイワークフロー
+├── index.html        # メインUI（単一ページ完結・OGPタグ対応）
 ├── css/
 │   └── style.css     # カスタムスタイル
 ├── js/
@@ -91,6 +94,8 @@ kotoba-pass/
 ├── manifest.json     # PWA対応（ホーム画面追加）
 ├── sw.js             # Service Worker（完全オフラインキャッシュ動作）
 ├── icons/            # アイコン画像 (SVG / 192px / 512px)
+├── images/           # OGP画像 (ogp.png 1200x630, ogp.svg)
+├── scripts/          # OGP画像再生成スクリプト (generate-ogp.ps1)
 ├── test-verify.js    # Web Crypto APIとPowerShell/Bashの出力完全一致テスト
 └── README.md         # ドキュメント
 ```
@@ -110,6 +115,20 @@ Service Worker（`sw.js`）により、一度読み込めばインターネッ�
 
 ---
 
+## 🖼 OGP画像の編集と再生成
+
+OGP画像（1200x630px）は画像生成AIではなく、編集可能なスクリプトおよびベクターSVGとして管理されています。  
+デザインやテキストを変更したい場合は、以下のいずれかで再生成できます。
+
+```powershell
+# PowerShell（Windows標準・追加ライブラリ不要）
+powershell -ExecutionPolicy Bypass -File .\scripts\generate-ogp.ps1
+```
+
+また、`images/ogp.svg` を直接ベクターエディタやテキストエディタで編集して利用することも可能です。
+
+---
+
 ## 🧪 整合性テストの実行
 
 Web Crypto APIの出力と、PowerShell・Bashのコマンド出力が1文字の狂いもなく一致するかを以下のテストスクリプトで自動検証できます。
@@ -123,3 +142,4 @@ node test-verify.js
 ## 📄 ライセンス
 
 MIT License - 詳細は [LICENSE](LICENSE) を参照してください。
+
