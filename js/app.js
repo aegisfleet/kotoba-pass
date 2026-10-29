@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // CLI Elements
   const tabBtnWin = document.getElementById("tab-btn-win");
   const tabBtnLinux = document.getElementById("tab-btn-linux");
+  const cliTabLabel = document.getElementById("cli-tab-label");
   const checkMaskCliPhrase = document.getElementById("check-mask-cli-phrase");
   const cliCommandCode = document.getElementById("cli-command-code");
   const btnCopyCli = document.getElementById("btn-copy-cli");
@@ -474,18 +475,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // CLI Tabs (Keep dark: classes on tab switch)
+  // CLI Tabs (Keep dark: classes on tab switch & update tab label)
   tabBtnWin.addEventListener("click", () => {
     activeTab = "win";
-    tabBtnWin.className = "px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 focus:outline-none";
-    tabBtnLinux.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-300 focus:outline-none";
+    tabBtnWin.className = "px-3.5 sm:px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 focus:outline-none shrink-0 whitespace-nowrap";
+    tabBtnLinux.className = "px-3.5 sm:px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-300 focus:outline-none shrink-0 whitespace-nowrap";
+    if (cliTabLabel) cliTabLabel.textContent = "PowerShell";
     updateCliDisplay();
   });
 
   tabBtnLinux.addEventListener("click", () => {
     activeTab = "linux";
-    tabBtnLinux.className = "px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 focus:outline-none";
-    tabBtnWin.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-300 focus:outline-none";
+    tabBtnLinux.className = "px-3.5 sm:px-4 py-2 text-xs font-semibold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 focus:outline-none shrink-0 whitespace-nowrap";
+    tabBtnWin.className = "px-3.5 sm:px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-300 focus:outline-none shrink-0 whitespace-nowrap";
+    if (cliTabLabel) cliTabLabel.textContent = "Bash (Linux/macOS)";
     updateCliDisplay();
   });
 
@@ -521,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateGeneration();
 
   // --- PWA Service Worker Registration ---
-  if ("serviceWorker" in navigator) {
+  if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("./sw.js").then(reg => {
         console.log("ServiceWorker registered: ", reg.scope);

@@ -16,12 +16,15 @@
  * @param {string} [config.suffix] - 末尾に付加する接尾辞 (任意)
  * @returns {Promise<string>} 生成されたパスワード
  */
-const SAFE_SYMBOLS = "!@#$%^&*_+=~?";
+// 記号置換時の安全な記号セット
+var SAFE_SYMBOLS = typeof SAFE_SYMBOLS !== "undefined" ? SAFE_SYMBOLS : "!@#$%^&*_+=~?";
 
-function sanitizeSymbol(char, fallback = "!") {
-  if (!char || typeof char !== "string") return fallback;
-  const c = char.charAt(0);
-  return SAFE_SYMBOLS.includes(c) ? c : fallback;
+if (typeof sanitizeSymbol === "undefined") {
+  var sanitizeSymbol = function(char, fallback = "!") {
+    if (!char || typeof char !== "string") return fallback;
+    const c = char.charAt(0);
+    return SAFE_SYMBOLS.includes(c) ? c : fallback;
+  };
 }
 
 async function generatePassword(phrase, config = {}) {

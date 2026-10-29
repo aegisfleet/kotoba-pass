@@ -24,15 +24,15 @@ function escapeForBash(str) {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\$/g, '\\$').replace(/`/g, '\\`');
 }
 
-/**
- * 安全なカスタム置換記号（BashおよびPowerShellで誤作動しない安全記号）
- */
-const SAFE_SYMBOLS = "!@#$%^&*_+=~?";
+// 記号置換時の安全な記号セット
+var SAFE_SYMBOLS = typeof SAFE_SYMBOLS !== "undefined" ? SAFE_SYMBOLS : "!@#$%^&*_+=~?";
 
-function sanitizeSymbol(char, fallback = "!") {
-  if (!char || typeof char !== "string") return fallback;
-  const c = char.charAt(0);
-  return SAFE_SYMBOLS.includes(c) ? c : fallback;
+if (typeof sanitizeSymbol === "undefined") {
+  var sanitizeSymbol = function(char, fallback = "!") {
+    if (!char || typeof char !== "string") return fallback;
+    const c = char.charAt(0);
+    return SAFE_SYMBOLS.includes(c) ? c : fallback;
+  };
 }
 
 /**
