@@ -1,4 +1,4 @@
-﻿# KotobaPass OGP Image Generator (1200x630)
+# KotobaPass OGP Image Generator (1200x630)
 # Windows標準の .NET System.Drawing を使って決定論的にOGP画像を生成します。
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 Add-Type -AssemblyName System.Drawing
